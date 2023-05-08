@@ -1,0 +1,57 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+struct Interval {
+    int start, finish, weight;
+};
+
+bool compareIntervals(const Interval& i1, const Interval& i2) {
+    return i1.weight > i2.weight;
+}
+
+int binarySearch(const vector<Interval>& intervals, int i) {
+    int lo = 0, hi = i - 1;
+    while (lo <= hi) {
+        int mid = (lo + hi) / 2;
+        if (intervals[mid].finish <= intervals[i].start) {
+            if (intervals[mid + 1].finish <= intervals[i].start)
+                lo = mid + 1;
+            else
+                return mid;
+        }
+        else
+            hi = mid - 1;
+    }
+    return -1;
+}
+
+int scheduleDP(const vector<Interval>& intervals) {
+    vector<int> M(intervals.size());
+    M[0] = intervals[0].weight;
+    for (int i = 1; i < intervals.size(); i++) {
+        int prev = binarySearch(intervals, i);
+        int weight = intervals[i].weight;
+        if (prev != -1)
+            weight += M[prev];
+        M[i] = max(weight, M[i - 1]);
+    }
+    return M.back();
+}
+
+int main() {
+    int n;
+    cout << "Enter the number of intervals: ";
+    cin >> n;
+    vector<Interval> intervals(n);
+    for (int i = 0; i < n; i++) {
+        cout << "Enter the start, finish, and weight of interval " << i + 1 << ": ";
+        cin >> intervals[i].start >> intervals[i].finish >> intervals[i].weight;
+    }
+    sort(intervals.begin(), intervals.end(), compareIntervals);
+    cout << "The maximum weight that can be achieved is " << scheduleDP(intervals) << endl;
+    return 0;
+}
+
+

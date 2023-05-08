@@ -1,0 +1,44 @@
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+void dfs(vector<int> adj[], int vertex, vector<bool>& visited) {
+    visited[vertex] = true;
+    cout << vertex << " ";
+
+    // iterate through all the adjacent vertices of the current vertex
+    for (int adj_vertex : adj[vertex]) {
+        if (!visited[adj_vertex]) {
+            dfs(adj, adj_vertex, visited);
+        }
+    }
+}
+
+int main() {
+    int num_vertices = 5;
+    vector<int> adj[num_vertices];
+
+    // add edges to the graph
+    adj[0].push_back(1);
+    adj[0].push_back(4);
+    adj[1].push_back(0);
+    adj[1].push_back(2);
+    adj[1].push_back(3);
+    adj[1].push_back(4);
+    adj[2].push_back(1);
+    adj[2].push_back(3);
+    adj[3].push_back(1);
+    adj[3].push_back(2);
+    adj[3].push_back(4);
+    adj[4].push_back(0);
+    adj[4].push_back(1);
+    adj[4].push_back(3);
+
+    vector<bool> visited(num_vertices, false); // initially mark all vertices as not visited
+
+    cout << "DFS traversal starting from vertex 2: ";
+    dfs(adj, 2, visited);
+
+    return 0;
+}

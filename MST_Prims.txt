@@ -1,0 +1,90 @@
+
+#include <iostream>
+#include <vector>
+#include <queue>
+
+using namespace std;
+
+// Edge class to represent an edge in the graph
+class Edge {
+public:
+    int src, dest, weight;
+    Edge(int s, int d, int w) {
+        src = s;
+        dest = d;
+        weight = w;
+    }
+};
+
+// Comparison function for priority queue
+class CompareEdges {
+public:
+    bool operator()(Edge const& e1, Edge const& e2) {
+        return e1.weight > e2.weight;
+    }
+};
+
+// Function to find the minimum spanning tree of a graph using Prim's algorithm
+vector<Edge> primMST(vector<vector<pair<int, int>>>& graph, int start) {
+    int num_vertices = graph.size();
+    vector<Edge> MST;
+    vector<bool> visited(num_vertices, false);
+    priority_queue<Edge, vector<Edge>, CompareEdges> pq;
+
+    visited[start] = true;
+
+    // Add all the edges adjacent to the starting vertex to the priority queue
+    for (auto it = graph[start].begin(); it != graph[start].end(); it++) {
+        pq.push(Edge(start, it->first, it->second));
+    }
+
+    while (!pq.empty()) {
+        Edge e = pq.top();
+        pq.pop();
+
+        // If the edge connects an unvisited vertex to a visited vertex, add it to the MST
+        if (visited[e.src] != visited[e.dest]) {
+            MST.push_back(e);
+
+            // Mark the destination vertex as visited and add its adjacent edges to the priority queue
+            int new_vertex = visited[e.src] ? e.dest : e.src;
+            visited[new_vertex] = true;
+            for (auto it = graph[new_vertex].begin(); it != graph[new_vertex].end(); it++) {
+                if (!visited[it->first]) {
+                    pq.push(Edge(new_vertex, it->first, it->second));
+                }
+            }
+        }
+    }
+
+    return MST;
+}
+
+// Main function to test the primMST function
+int main() {
+    int num_vertices, num_edges, start_vertex;
+    cout << "Enter the number of vertices and edges in the graph: ";
+    cin >> num_vertices >> num_edges;
+    vector<vector<pair<int, int>>> graph(num_vertices);
+    cout << "Enter the edges and their weights in the graph:\n";
+    for (int i = 0; i < num_edges; i++) {
+        int src, dest, weight;
+        cin >> src >> dest >> weight;
+        graph[src].push_back(make_pair(dest, weight));
+        graph[dest].push_back(make_pair(src, weight));
+    }
+    cout << "Enter the starting vertex for Prim's algorithm: ";
+    cin >> start_vertex;
+
+    vector<Edge> MST = primMST(graph, start_vertex);
+
+    cout << "The minimum spanning tree is:\n";
+    int total_weight = 0;
+    for (Edge e : MST) {
+        cout << e.src << " - " << e.dest << " : " << e.weight << endl;
+        total_weight += e.weight;
+    }
+    cout << "Total weight of the minimum spanning tree: " << total_weight << endl;
+
+    return 0;
+}

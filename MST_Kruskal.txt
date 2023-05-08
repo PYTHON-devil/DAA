@@ -1,0 +1,95 @@
+
+//#include <bits/stdc++.h>
+#include <iostream>
+using namespace std;
+
+// Structure to represent a graph edge
+struct Edge {
+    int src, dest, weight;
+};
+
+// Structure to represent a graph
+struct Graph {
+    int V, E;
+    Edge* edge;
+};
+
+// Function to create a new graph with V vertices and E edges
+Graph* createGraph(int V, int E) {
+    Graph* graph = new Graph;
+    graph->V = V;
+    graph->E = E;
+    graph->edge = new Edge[E];
+    return graph;
+}
+
+// Find function for Union-Find algorithm
+int find(int parent[], int i) {
+    if (parent[i] == -1)
+        return i;
+    return find(parent, parent[i]);
+}
+
+// Union function for Union-Find algorithm
+void Union(int parent[], int x, int y) {
+    int xset = find(parent, x);
+    int yset = find(parent, y);
+    parent[xset] = yset;
+}
+
+// Comparison function to sort edges by weight
+int myComp(const void* a, const void* b) {
+    Edge* a1 = (Edge*)a;
+    Edge* b1 = (Edge*)b;
+    return a1->weight > b1->weight;
+}
+
+// Function to find the minimum spanning tree using Kruskal's algorithm
+void KruskalMST(Graph* graph) {
+    int V = graph->V;
+    Edge result[V];  // Array to store the result of MST
+    int e = 0;  // Index variable for result array
+    int i = 0;  // Index variable for sorted edges array
+
+    // Sort all the edges in non-decreasing order of their weight
+    qsort(graph->edge, graph->E, sizeof(graph->edge[0]), myComp);
+
+    // Allocate memory for creating V subsets
+    int* parent = new int[V];
+    memset(parent, -1, sizeof(int) * V);
+
+    // Iterate through all the edges in the sorted order
+    while (e < V - 1 && i < graph->E) {
+        Edge next_edge = graph->edge[i++];
+
+        // Check if including this edge does not create a cycle
+        int x = find(parent, next_edge.src);
+        int y = find(parent, next_edge.dest);
+        if (x != y) {
+            result[e++] = next_edge;
+            Union(parent, x, y);
+        }
+    }
+
+    // Print the minimum spanning tree
+    cout << "Minimum Spanning Tree using Kruskal's algorithm:\n";
+    for (i = 0; i < e; ++i)
+        cout << result[i].src << " - " << result[i].dest << " : " << result[i].weight << "\n";
+}
+
+// Driver code
+int main() {
+    int V, E;
+    cout << "Enter the number of vertices and edges in the graph: ";
+    cin >> V >> E;
+
+    Graph* graph = createGraph(V, E);
+
+    cout << "Enter the edges and their weights in the graph:\n";
+    for (int i = 0; i < E; ++i)
+        cin >> graph->edge[i].src >> graph->edge[i].dest >> graph->edge[i].weight;
+
+    KruskalMST(graph);
+
+    return 0;
+}
